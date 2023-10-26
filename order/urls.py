@@ -21,10 +21,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 
+app_name = 'order'  # Namespace for the app
+
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
-     path('order/', include('order.urls', namespace='order')),
-     path('', views.index, name='index'),
+    path('', views.index, name='index'),
+    path('menu/', views.menu, name='menu'),
+    path('about/', views.about, name='about'),
+    path('book/', views.book, name='book')
 
 ]
 
