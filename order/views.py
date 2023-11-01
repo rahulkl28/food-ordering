@@ -65,11 +65,7 @@ def signup(request):
         pass1 = request.POST['pass1']
         pass2 = request.POST['pass2']
 
-        #Check for errorneous inputs
-        if len(username)<10:
-            messages.error(request, " Your user name must be under 10 characters")
-            return redirect('/order')
-
+        #Check for errorneous input
         if not username.isalnum():
             messages.error(request, " User name should only contain letters and numbers")
             return redirect('/order')
@@ -104,7 +100,7 @@ def handlelogin(request):
         else:
             messages.error(request, "Invalid Credentials, Please try again")
             return redirect('/order')
-            
+
     return HttpResponse("404- Not found")
 
 def handlelogout(request):
