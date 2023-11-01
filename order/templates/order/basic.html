@@ -72,12 +72,12 @@
             </ul>
 
              <!-- signup Button modal -->
-            <button type="button" class="btn btn-primary mr-3" data-bs-toggle="modal" data-bs-target="#signupModal">
+            <button type="button" class="btn btn-outline-warning mr-2" data-bs-toggle="modal" data-bs-target="#signupModal">
               Sign Up
             </button>
             
             <!-- Login Button modal -->
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
+            <button type="button" class="btn btn-outline-warning mr-2" data-bs-toggle="modal" data-bs-target="#loginModal">
               Login
             </button>
 
@@ -164,14 +164,14 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form action= "/signup" method='post'>
+          <form action= "/order/signup" method='post'>
             <div class="form-group">
               <label for="username">Username</label>
-              <input type="text" class="form-control" id="username" name="username" placeholder="Choose a unique username">
+              <input required type="text" class="form-control" id="username" name="username" placeholder="Choose a unique username">
             </div>
             <div class="form-group">
               <label for="fname">First Name</label>
-              <input type="text" class="form-control" id="fname" name="fname" placeholder="Enter Your First Name">
+              <input required type="text" class="form-control" id="fname" name="fname" placeholder="Enter Your First Name">
             </div>
             <div class="form-group">
               <label for="lname">Last Name</label>
@@ -179,7 +179,7 @@
             </div>
             <div class="form-group">
               <label for="email">Email address</label>
-              <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com">
+              <input required type="email" class="form-control" id="email" name="email" placeholder="name@example.com">
             </div>
             <div class="form-group">
               <label for="pass1">Choose a password</label>
@@ -187,7 +187,7 @@
             </div>
             <div class="form-group">
               <label for="pass2">Confirm Password</label>
-              <input type="password" class="form-control" id="pass2" name="pass2" placeholder="Enter your password again">
+              <input required type="password" class="form-control" id="pass2" name="pass2" placeholder="Enter your password again">
             </div>                    
                   {% csrf_token %}
                   <div class="d-flex justify-content-center">
@@ -209,15 +209,14 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form>
-            <div class="mb-3">
-              <label for="exampleInputEmail1" class="form-label">Email address</label>
-              <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-              <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+          <form action="/order/login" method="post">
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input type="text" class="form-control" id="loginusername" name="loginusername" placeholder="Choose a unique username">
             </div>
-            <div class="mb-3">
-              <label for="exampleInputPassword1" class="form-label">Password</label>
-              <input type="password" class="form-control" id="exampleInputPassword1">
+            <div class="form-group">
+              <label for="pass">Enter your password </label>
+              <input type="password" class="form-control" id="loginpass" name="loginpass" placeholder="Enter your password ">
             </div>
             <div class="mb-3 form-check">
               <input type="checkbox" class="form-check-input" id="exampleCheck1">

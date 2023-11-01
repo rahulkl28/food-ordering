@@ -29,8 +29,9 @@ urlpatterns = [
     path('menu/', views.menu, name='menu'),
     path('about/', views.about, name='about'),
     path('book/', views.book, name='book'),
-    path('signup/', views.signup, name='signup'),
-
+    path('signup', views.signup, name='signup'),
+    path('login', views.handlelogin, name='handlelogin'),
+    path('logout', views.logout, name='logout'),
 ]
 
 if settings.DEBUG:

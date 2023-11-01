@@ -26,6 +26,7 @@ urlpatterns = [
      path('order/', include('order.urls', namespace='order')),
      path('', views.index, name='index'),
 
+
 ]
 
 if settings.DEBUG:
