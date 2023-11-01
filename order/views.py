@@ -14,6 +14,9 @@ def menu(request):
 def about(request):
     return render(request, 'order/about.html')
 
+def signup(request):
+    return render(request, 'order/signup.html')
+
 def book(request):
     if request.method == 'GET':
         return render(request, 'order/book.html',)  
