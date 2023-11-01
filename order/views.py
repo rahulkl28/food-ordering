@@ -104,7 +104,10 @@ def handlelogin(request):
         else:
             messages.error(request, "Invalid Credentials, Please try again")
             return redirect('/order')
+            
+    return HttpResponse("404- Not found")
 
-
-def logout(request):
-    return
+def handlelogout(request):
+    logout(request)
+    messages.success(request, "Successfully Logged Out")
+    return redirect('/order')

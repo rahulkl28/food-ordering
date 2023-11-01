@@ -31,7 +31,7 @@ urlpatterns = [
     path('book/', views.book, name='book'),
     path('signup', views.signup, name='signup'),
     path('login', views.handlelogin, name='handlelogin'),
-    path('logout', views.logout, name='logout'),
+    path('logout', views.handlelogout, name='handlelogout'),
 ]
 
 if settings.DEBUG:
