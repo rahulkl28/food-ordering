@@ -1,0 +1,121 @@
+{% extends 'order/basic.html' %}
+
+{% block title%} Reset Password {% endblock %}
+{% block resetteractive %} active {% endblock resetteractive %}
+
+{% block body %}
+
+ {% load static %}
+
+<body class="sub_page">
+
+
+  <!-- book section -->
+  <section class="book_section layout_padding">
+    <div class="container">
+      <div class="heading_container">
+        <h2>
+          Reset Your Password
+        </h2>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form_container">
+            <form action="{% url 'order:resetter' %}" method="post">
+               {% csrf_token %}
+              <!-- {{ form.as_p }} -->
+              <div>
+                <input type="password" id="password-field" name="password" class="form-control" placeholder="Your Current Password"/>
+                <span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+              </div>
+              <div>
+                <input type="password"  id="password-field1" name="new_password" class="form-control" placeholder="Your new Password"/>
+                <span toggle="#password-field1" class="fa fa-fw fa-eye field-icon1 toggle-password1"></span>
+              </div>
+              <div>
+                <input type="password" id="password-field2" name="cf_password" class="form-control" placeholder="Confirm your new Password" />
+                <span toggle="#password-field2" class="fa fa-fw fa-eye field-icon2 toggle-password2"></span>
+              </div>
+        
+
+              <div class="btn_box">
+                <button type="submit">
+                  Submit 
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- end book section -->
+
+  <!-- footer section -->
+
+  <!-- footer section -->
+  {% block css %}
+  <style>
+    .field-icon {
+    position: absolute;
+    right: 21px;
+    top: 10%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    }
+    .field-icon1 {
+      position: absolute;
+      right: 21px;
+      top: 36%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      }
+    .field-icon2 {
+        position: absolute;
+        right: 21px;
+        top: 63%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        }
+  </style>
+{% endblock %}
+ 
+  {% block js %}
+  <!-- jQery -->
+  <script>
+    $(".toggle-password").click(function () {
+      $(this).toggleClass("fa-eye fa-eye-slash");
+      var input = $($(this).attr("toggle"));
+      if (input.attr("type") == "password") {
+        input.attr("type", "text");
+      } else {
+        input.attr("type", "password");
+      }
+    });
+    $(".toggle-password1").click(function () {
+      $(this).toggleClass("fa-eye fa-eye-slash");
+      var input = $($(this).attr("toggle"));
+      if (input.attr("type") == "password") {
+        input.attr("type", "text");
+      } else {
+        input.attr("type", "password");
+      }
+    });
+    $(".toggle-password2").click(function () {
+      $(this).toggleClass("fa-eye fa-eye-slash");
+      var input = $($(this).attr("toggle"));
+      if (input.attr("type") == "password") {
+        input.attr("type", "text");
+      } else {
+        input.attr("type", "password");
+      }
+    });
+  </script>
+  {% endblock %}
+
+</body>
+
+</html>
+
+{% endblock %}

@@ -58,30 +58,33 @@
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav  mx-auto ">
               <li class="nav-item {% block homeactive %} {% endblock homeactive %}">
-                <a class="nav-link" href="/order">Home <span class="sr-only">(current)</span></a>
+                <a class="nav-link" href="{% url 'order:index' %}">Home <span class="sr-only">(current)</span></a>
               </li>
               <li class="nav-item {% block menuactive %} {% endblock menuactive %}">
-                <a class="nav-link" href="/order/menu">Menu</a>
+                <a class="nav-link" href="{% url 'order:menu' %}">Menu</a>
               </li>
               <li class="nav-item {% block aboutactive %} {% endblock aboutactive %}">
-                <a class="nav-link" href="/order/about">About</a>
+                <a class="nav-link" href="{% url 'order:about' %}">About</a>
               </li>
               <li class="nav-item {% block bookactive %} {% endblock bookactive %}">
-                <a class="nav-link" href="/order/book">Book Table</a>
+                <a class="nav-link" href="{% url 'order:book' %}">Book Table</a>
               </li>
+
             </ul>
 
             {% if user.is_authenticated %}
-            <ul class="navbar-nav mr-2">
+            <ul class="navbar-nav mr-2">  
               <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href='#' id="navbarDropdown" role="button" data-toggle="dropdown"> Welcome!    {{request.user}}</a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="/order/logout">Logout</a> 
+                        <a class="dropdown-item {% block resetteractive %} {% endblock resetteractive %}" href="{% url 'order:resetter' %}">Reset Password</a>
                       </div>
                     </li>
+                    
                     </ul>
             {% else %}
-             <!-- signup Button modal -->
+            <!-- signup Button modal -->
             <button type="button" class="btn btn-outline-warning mr-2" data-bs-toggle="modal" data-bs-target="#signupModal">
               Sign Up
             </button>
@@ -91,10 +94,11 @@
               Login
             </button>
             {% endif %}
-            <div class="user_option">
-              <a href="" class="user_link">
-                <i class="fa fa-user" aria-hidden="true"></i>
-              </a>
+            <div class="user_option active">
+              <a href="{% url 'order:profile' %}" class="user_link {% block profileactive %} {% endblock profileactive %}">
+                <i class="fa fa-user " aria-hidden="true"></i><span class="sr-only">(current)</span>
+            </a>
+            
 
               <a class="cart_link" href="#">
                 <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 456.029 456.029" style="enable-background:new 0 0 456.029 456.029;" xml:space="preserve">
@@ -150,11 +154,19 @@
                   </g>
                 </svg>
               </a>
-              <form class="form-inline">
-                <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
-                  <i class="fa fa-search" aria-hidden="true"></i>
-                </button>
+              <!-- Add this code where you want to display the search form -->
+              <form class="form-inline d-flex ml-auto" method="GET" action="{% url 'order:search' %}">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input type="text" name="query" value="{{ search_query }}" class="form-control" placeholder="Search...">
+                    <div class="input-group-prepend">
+                        <button class="btn nav_search-btn" type="submit">
+                            <i class="fa fa-search" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
               </form>
+
               <a href="" class="order_online">
                 Order Online
               </a>
@@ -174,7 +186,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form action= "/order/signup" method='post'>
+          <form action= "/order/signup" method='post'>  {% csrf_token %}
             <div class="form-group">
               <label for="username">Username</label>
               <input required type="text" class="form-control" id="username" name="username" placeholder="Choose a unique username">
@@ -199,7 +211,7 @@
               <label for="pass2">Confirm Password</label>
               <input required type="password" class="form-control" id="pass2" name="pass2" placeholder="Enter your password again">
             </div>                    
-                  {% csrf_token %}
+                 
                   <div class="d-flex justify-content-center">
                     <button type="submit" class="btn btn-primary">Submit</button>
                   </div>

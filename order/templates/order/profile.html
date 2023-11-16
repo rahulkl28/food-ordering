@@ -1,0 +1,159 @@
+{% extends 'order/basic.html' %}
+
+{% block title%} Profile {% endblock %}
+{%block profileactive%} active {%endblock profileactive%}
+{% block body %}
+{% load static %}
+
+
+<body class="sub_page">
+
+  <div class="hero_area">
+    <div class="bg-box">
+      <img src="{% static 'images/hero-bg.jpg' %}" alt="">
+    </div>
+  </div>
+
+    
+    <div class="card mx-auto mt-3 mb-3 " style="width: 65rem;">
+      <h2 class="card-header">Your Profile</h2>
+      <div class="card-body">
+          <h4 class="card-title">Your Personal Details</h4>
+
+          <p class="card-text"> Username: {{ user_profile.username }}   
+            <button type="button" class="btn btn-success ml-3" data-bs-toggle="modal" data-bs-target="#editUsernameModal">Edit</button></p> 
+
+          <p class="card-text">First Name: {{ user_profile.first_name }}<button type="button" class="btn btn-success ml-3" data-bs-toggle="modal" data-bs-target="#editFnameModal">Edit</button>
+            <form action="{% url 'order:delete_data' %}" method="post">
+              {% csrf_token %}
+              <button type="submit" name="fname" class="btn btn-danger ml-3">Delete</button>
+          </form>
+          </p> 
+          <p class="card-text">Last Name: {{ user_profile.last_name }} <button type="button" class="btn btn-success ml-3" data-bs-toggle="modal" data-bs-target="#editLnameModal">Edit</button>
+            <form action="{% url 'order:delete_data' %}" method="post">
+              {% csrf_token %}
+              <button type="submit" name="lname" class="btn btn-danger ml-3">Delete</button>
+          </form></p>
+
+          <p class="card-text">Email: {{ user_profile.email }} <button type="button" class="btn btn-success ml-3" data-bs-toggle="modal" data-bs-target="#editEmailModal">Edit</button>
+            <form action="{% url 'order:delete_data' %}" method="post">
+              {% csrf_token %}
+              <button type="submit" name="email" class="btn btn-danger ml-3">Delete</button>
+          </form> <br>
+
+          <a href="/order" class="btn btn-primary">Back to home page</a>
+      </div>
+    </div>
+
+<!--Username Modal -->
+<div class="modal fade" id="editUsernameModal" tabindex="-1" aria-labelledby="editUsernameModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editUsernameModal">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action= "{% url 'order:update_data' %}" method='post'>  {% csrf_token %}
+          <div class="form-group">
+            <label for="username">New Username</label>
+            <input required type="text" class="form-control" id="username" name="username" placeholder="Choose a unique username">
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+
+<!--Firstname Modal -->
+<div class="modal fade" id="editFnameModal" tabindex="-1" aria-labelledby="editFnameModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editFnameModal">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action= "{% url 'order:update_data' %}" method='post'>  {% csrf_token %}
+          <div class="form-group">
+            <label for="name">New First Name</label>
+            <input required type="text" class="form-control" id="fname" name="fname" placeholder="Enter your new first name">
+          </div>
+          
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+
+<!--Lastname Modal -->
+<div class="modal fade" id="editLnameModal" tabindex="-1" aria-labelledby="editLnameModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editLnameModal">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action= "{% url 'order:update_data' %}" method='post'>  {% csrf_token %}
+          <div class="form-group">
+            <label for="name">New Last Name</label>
+            <input required type="text" class="form-control" id="lname" name="lname" placeholder="Enter your new last name">
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+
+<!--Email Modal -->
+<div class="modal fade" id="editEmailModal" tabindex="-1" aria-labelledby="editEmailModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editEmailModal">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action= "{% url 'order:update_data' %}" method='post'>  {% csrf_token %}
+          <div class="form-group">
+            <label for="email">Enter your Email</label>
+            <input required type="text" class="form-control" id="email" name="email" placeholder="Enter your new Email">
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+    {% endblock %}
+    
+    {% block js %}
+    <!-- jQery -->
+    
+    
+
+  </body>
+  
+  </html>
+  
+  {% endblock %}

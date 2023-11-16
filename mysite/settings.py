@@ -29,6 +29,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = "order.User"
 
 # Application definition
 
@@ -79,7 +80,7 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'contact',
+        'NAME': 'food_contact',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',
@@ -124,9 +125,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# settings.py
+MEDIA_URL = '/media/'
+
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

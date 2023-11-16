@@ -26,13 +26,21 @@ app_name = 'order'  # Namespace for the app
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('category/<slug:slug>', views.category_products, name='category_products'),
     path('menu/', views.menu, name='menu'),
     path('about/', views.about, name='about'),
     path('book/', views.book, name='book'),
+    path('profile/', views.profile, name='profile'),
+    path('search/', views.searchmenu, name='search'),
+    path('resetter/', views.resetter, name='resetter'),
+    path('update_data', views.update_data, name='update_data'),
+    path('delete_data', views.delete_data, name='delete_data'),
     path('signup', views.signup, name='signup'),
     path('login', views.handlelogin, name='handlelogin'),
     path('logout', views.handlelogout, name='handlelogout'),
+    
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
