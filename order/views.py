@@ -8,7 +8,11 @@ from django.contrib.auth import authenticate, login, logout
 from .models import Categories, Product
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
-
+from django.db.models import Q
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.urls import reverse
 
 
 def index(request):
@@ -24,7 +28,9 @@ def category_products(request, slug):
 
 
 def menu(request):
-    return render(request,'order/menu.html')
+    categories = Categories.objects.all()
+    products = Product.objects.all()
+    return render(request, 'order/menu.html', {'categories': categories, 'products': products})
 
 
 def about(request):
@@ -189,14 +195,38 @@ def handlelogout(request):
 
 
 def searchmenu(request):
-    if request.method == 'GET':
-        query = request.GET.get('query')
+    query = request.GET.get('query', '')
 
-        if query:
-            products = Product.objects.filter(product_name__icontains=query)
-            return render(request, 'order/searchmenu.html', {'products': products})
-        
+    if query:
+        products = Product.objects.filter(Q(product_name__icontains=query) | Q(product_price=query))
+
+        if products.exists():
+            return render(request, 'order/searchmenu.html', {'products': products, 'query': query})
         else:
             messages.error(request, "OOPS! No item is found")
-            return redirect('/order')
+            return render(request, 'order/index.html', {'query': query})
+    else:
+        return redirect('/order/menu')
 
+def productdetails(request, product_id):
+    product = get_object_or_404(Product, pk=product_id)
+    return render(request, 'order/productdetails.html', {'product': product})
+
+
+
+
+@csrf_exempt
+@require_POST
+def delete_product(request, product_id):
+    try:
+        product = Product.objects.get(id=product_id)
+        redirect_url = reverse('order:menu')
+
+        # Your delete logic here
+        product.delete()
+
+        return JsonResponse({'message': 'Product deleted successfully.', 'redirect_url': redirect_url}, status=200)
+    except Product.DoesNotExist:
+        return JsonResponse({'error': 'Product not found.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
