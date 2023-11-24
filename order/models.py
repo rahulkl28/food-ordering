@@ -6,7 +6,7 @@ from django.conf import settings
 # from django.db.models.signals import post_save
 # from django.dispatch import receiver
 
-# Create your models here.
+
 class Contact(models.Model):
     your_name = models.CharField(max_length=20,null=False,blank=True)
     phone_number = models.IntegerField(null=True,blank=True)
@@ -28,8 +28,10 @@ class Product(models.Model):
     product_img = models.ImageField(null=False, blank=False)
     product_name = models.CharField(max_length=20,null=False,blank=True)
     product_desc = models.CharField(max_length=200,null=True,blank=True)
-    product_price = models.CharField(max_length=10,null=True)
+    product_price = models.IntegerField(null=True,blank=True)
     category_name = models.ForeignKey(Categories, on_delete=models.CASCADE, default=True, null=False)
+
+    
 
 class User(AbstractUser):
     first_name = models.CharField(max_length=250, null=True, blank=True)
@@ -42,3 +44,21 @@ class User(AbstractUser):
         managed = True
         db_table = "tbl_user"
    
+
+
+class Cart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='carts')
+    is_paid = models.BooleanField(default=False)
+
+
+class CartItems(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="cart_items")
+    product = models.ForeignKey(Product , on_delete=models.SET_NULL, null=True, blank=True)
+    quantity = models.PositiveIntegerField(default=1)
+    
+    def __str__(self):
+        return f"{self.quantity} x {self.product}"
+
+    def get_total_price(self):
+        return self.quantity * self.product.product_price
+    

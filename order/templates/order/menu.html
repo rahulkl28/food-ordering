@@ -34,7 +34,7 @@
         <div class="row grid">
 
             {% for product in products %}
-              <div class="col-sm-6 col-lg-4 all {{ product.category_name.slug }}">
+              <div class="col-sm-6 col-lg-4 all {{ product.category_name.slug }}" onclick="redirectToProductDetails({{ product.id }})">
                   <div class="box">
                       <div>
                           <div class="img-box"> 
@@ -45,7 +45,7 @@
                               <p>{{ product.product_desc }}</p>
                               <div class="options">
                                   <h6>${{ product.product_price }}</h6>
-                                  <a href="{% url 'order:productdetails' product.id %}">
+                                  <a href="{% url 'order:add_to_cart' product.id %}">
                                     <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 456.029 456.029" style="enable-background:new 0 0 456.029 456.029;" xml:space="preserve">
                                       <g>
                                         <g>
@@ -126,6 +126,15 @@
 
   {% block js %}
   <!-- jQery -->
+  <script>
+    function redirectToProductDetails(productId) {
+        // Construct the URL for the product details page
+        var productDetailsUrl = "{% url 'order:productdetails' 0 %}".replace("0", productId);
+        
+        // Redirect the user to the product details page
+        window.location.href = productDetailsUrl;
+    }
+</script>
   
 </body>
 

@@ -100,7 +100,12 @@
             </a>
             
 
-              <a class="cart_link" href="#">
+            <a class="cart_link" href="{% url 'order:cart' %}" onclick="addToCart(productId)">
+
+                {% if user.is_authenticated %}
+                <span id="cart-counter" class="cart-counter">{{cart_count}}</span>
+                {% endif %}
+
                 <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 456.029 456.029" style="enable-background:new 0 0 456.029 456.029;" xml:space="preserve">
                   <g>
                     <g>
@@ -384,7 +389,42 @@
   </script>
 
   <!-- End Google Map -->
-  {% block js %} {% endblock %}
+  {% block js %}
+
+  <script>
+  function addToCart(productId) {
+    // Send an AJAX request to add the product to the cart
+    fetch('{% url "order:add_to_cart" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',
+        },
+        body: JSON.stringify({
+            product_id: productId,
+        }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to add product to cart');
+        }
+        // Optionally, you can update the UI to reflect the change in the cart
+        updateCartCounter();
+    })
+    .catch(error => console.error(error));
+}
+
+function updateCartCounter() {
+    console.log('Updating cart counter...');
+    var currentCount = parseInt($('#cart-counter').text(), 10);
+    alert(currentCount)
+    $('#cart-counter').html(currentCount + 1);
+}
+</script>
+
+
 </body>
 
 </html>
+
+{% endblock %}

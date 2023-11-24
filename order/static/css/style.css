@@ -239,6 +239,14 @@ a:focus {
   fill: #ffbe33;
 }
 
+.cart_link .cart-counter {
+  background-color: #ff0000 !important; 
+  color: #ffffff !important; 
+  border-radius: 50% !important; 
+  padding: 4px 8px !important; 
+}
+
+
 .user_option .order_online {
   display: inline-block;
   padding: 8px 30px;

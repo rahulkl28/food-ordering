@@ -1,11 +1,11 @@
 from django.shortcuts import redirect
-from django.http import HttpResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from .models import Contact
 from django.contrib import messages
 from order.models import User
 from django.contrib.auth import authenticate, login, logout
-from .models import Categories, Product
+from .models import Categories, Product, Cart, CartItems
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
 from django.db.models import Q
@@ -18,7 +18,12 @@ from django.urls import reverse
 def index(request):
     categories = Categories.objects.all()
     products = Product.objects.all()
-    return render(request, 'order/index.html', {'categories': categories, 'products': products})
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(user=request.user).values_list("id",flat=True)
+        cart_items = CartItems.objects.filter(cart_id__in =cart )
+        return render(request, 'order/index.html', {'categories': categories, 'products': products,"cart_count":cart_items.count()})
+    else:
+        return render(request, 'order/index.html', {'categories': categories, 'products': products})
 
 def category_products(request, slug):
     category = get_object_or_404(Categories, slug=slug)
@@ -30,17 +35,23 @@ def category_products(request, slug):
 def menu(request):
     categories = Categories.objects.all()
     products = Product.objects.all()
-    return render(request, 'order/menu.html', {'categories': categories, 'products': products})
+    cart = Cart.objects.filter(user=request.user).values_list("id",flat=True)
+    cart_items = CartItems.objects.filter(cart_id__in =cart )
+    return render(request, 'order/menu.html', {'categories': categories, 'products': products, "cart_count":cart_items.count()})
 
 
 def about(request):
-    return render(request, 'order/about.html')
+    cart = Cart.objects.filter(user=request.user).values_list("id",flat=True)
+    cart_items = CartItems.objects.filter(cart_id__in =cart )
+    return render(request, 'order/about.html' , {"cart_count":cart_items.count()})
 
 
 @login_required
 def profile(request):
         user_profile = User.objects.get(username=request.user.username)
-        return render(request, 'order/profile.html', {'user_profile': user_profile})
+        cart = Cart.objects.filter(user=request.user).values_list("id",flat=True)
+        cart_items = CartItems.objects.filter(cart_id__in =cart )
+        return render(request, 'order/profile.html', {'user_profile': user_profile , "cart_count":cart_items.count()})
 
 
 
@@ -85,8 +96,10 @@ def update_data(request):
         return redirect("order:profile")
 
 def book(request):
+    cart = Cart.objects.filter(user=request.user).values_list("id",flat=True)
+    cart_items = CartItems.objects.filter(cart_id__in =cart )
     if request.method == 'GET':
-        return render(request, 'order/book.html')  
+        return render(request, 'order/book.html', {"cart_count":cart_items.count()})  
 
     if request.method == 'POST':
 
@@ -120,6 +133,8 @@ def book(request):
 
 
 def resetter(request):
+    cart = Cart.objects.filter(user=request.user).values_list("id",flat=True)
+    cart_items = CartItems.objects.filter(cart_id__in =cart )
     if request.method == 'POST':
         old_password = request.POST.get('password')
         new_password1 = request.POST.get('new_password')
@@ -127,7 +142,7 @@ def resetter(request):
 
         if not request.user.check_password(old_password):
             messages.error(request, 'Old password is incorrrect')
-            return render(request, 'order/resetter.html')
+            return render(request, 'order/resetter.html', {"cart_count":cart_items.count()})
 
         if new_password1 == new_password2:
             request.user.set_password(new_password1)
@@ -138,11 +153,11 @@ def resetter(request):
 
         else:
             messages.error(request, 'New passwords do not match')
-            return render(request, 'order/resetter.html')
+            return render(request, 'order/resetter.html', {"cart_count":cart_items.count()})
 
 
     if request.method == 'GET':
-     return render(request, 'order/resetter.html')
+     return render(request, 'order/resetter.html', {"cart_count":cart_items.count()})
 
 def signup(request):
     if request.method == 'POST':
@@ -196,21 +211,24 @@ def handlelogout(request):
 
 def searchmenu(request):
     query = request.GET.get('query', '')
-
+    cart = Cart.objects.filter(user=request.user).values_list("id",flat=True)
+    cart_items = CartItems.objects.filter(cart_id__in =cart )
     if query:
         products = Product.objects.filter(Q(product_name__icontains=query) | Q(product_price=query))
 
         if products.exists():
-            return render(request, 'order/searchmenu.html', {'products': products, 'query': query})
+            return render(request, 'order/searchmenu.html', {'products': products, 'query': query, "cart_count":cart_items.count()})
         else:
             messages.error(request, "OOPS! No item is found")
-            return render(request, 'order/index.html', {'query': query})
+            return render(request, 'order/index.html', {'query': query, "cart_count":cart_items.count()})
     else:
         return redirect('/order/menu')
 
 def productdetails(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
-    return render(request, 'order/productdetails.html', {'product': product})
+    cart = Cart.objects.filter(user=request.user).values_list("id",flat=True)
+    cart_items = CartItems.objects.filter(cart_id__in =cart )
+    return render(request, 'order/productdetails.html', {'product': product, "cart_count":cart_items.count()})
 
 
 
@@ -230,3 +248,85 @@ def delete_product(request, product_id):
         return JsonResponse({'error': 'Product not found.'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+
+def cart(request):
+    cart = Cart.objects.get(user=request.user)
+    cart_items = CartItems.objects.filter(cart=cart)
+    total_price = sum(int(product.get_total_price()) for product in cart_items)
+    subtotal = sum(product.get_total_price() for product in cart_items)
+    tax_rate = 0.05 
+    shipping_cost = 15.00 
+    tax = subtotal * tax_rate
+    grand_total = subtotal + tax + shipping_cost
+
+    return render(request, 'order/cart.html', { 'cart_items': cart_items,'cart_count': cart_items.count(), 'total_price': total_price, 'subtotal': subtotal, 'tax': tax, 'shipping_cost': shipping_cost, 'grand_total': grand_total})
+
+
+
+def add_to_cart(request, product_id):
+
+    product = get_object_or_404(Product, pk=product_id)
+    user = User.objects.get(id=request.user.id)
+
+    
+    carts = Cart.objects.filter(user=user, is_paid=False)
+
+    if carts.exists():
+        cart = carts.first()
+        cart_item = CartItems.objects.filter(cart=cart, product=product).first()
+
+        if cart_item:
+            cart_item.quantity += 1
+            cart_item.save()
+        else:
+            CartItems.objects.create(cart=cart, product=product)
+    else:
+        cart = Cart.objects.create(user=user, is_paid=False)
+        CartItems.objects.create(cart=cart, product=product)
+
+    
+    messages.success(request, "Your food item is added into the cart!")
+    return redirect('order:cart')
+
+
+
+def removeitems(request, product_id):
+    if request.method == "POST":
+        product = get_object_or_404(Product, pk=product_id)
+        user = request.user
+
+        carts = Cart.objects.filter(user=user, is_paid=False)
+
+        if carts.exists():
+            cart = carts.first()
+
+            cart_item = CartItems.objects.filter(cart=cart, product=product).first()
+
+            if cart_item:
+                cart_item.delete()
+                messages.success(request, "Your food item is removed from the cart!")
+            else:
+                messages.error(request, "The selected food item is not in the cart.")
+        else:
+            messages.error(request, "There is no active cart for the user.")
+
+    return redirect('order:cart')
+
+
+def update_cart(request):
+
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        quantity = request.POST.get('quantity')
+
+        product = Product.objects.get(id=product_id)
+        cart = Cart.objects.get(user=request.user)
+        cart_item = CartItems.objects.get(product=product, cart=cart)
+        cart_item.quantity = quantity
+        cart_item.save()
+
+        return JsonResponse({'status': 'success'})
+
+    return JsonResponse({'status': 'error'})
