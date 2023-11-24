@@ -50,13 +50,13 @@
                   </button>
                   </form>
                 </div>
-                <div class="product-line-price">{{ product.get_total_price |floatformat:2 }}</div>
+                <div class="product-line-price product_qnty" id="specific_product_{{ product.product.id }}">{{ product.get_total_price|floatformat:2 }}</div>
               </div>
 
               {% endfor %}
               
             
-              <div class="totals">
+              <div class="totals" data-tax-rate="0.05" data-shipping-cost="{{ shipping_cost }}">
                 <div class="totals-item">
                   <label>Subtotal</label>
                   <div class="totals-value" id="cart-subtotal">{{ subtotal |floatformat:2 }}</div>
@@ -64,15 +64,15 @@
                 <div class="totals-item">
                   <label>Tax (5%)</label>
                   <div class="totals-value" id="cart-tax">{{ tax|floatformat:2 }}</div>
-                </div>
+              </div>
                 <div class="totals-item">
                   <label>Shipping</label>
-                  <div class="totals-value" id="cart-shipping">15.00</div>
+                  <div class="totals-value" id="cart-shipping">{{ shipping_cost|floatformat:2 }}</div>
                 </div>
                 <div class="totals-item totals-item-total">
                   <label>Grand Total</label>
-                  <div class="totals-value" id="cart-total">{{grand_total|floatformat:2}}</div>
-                </div>
+                  <div class="totals-value" id="cart-total">{{ grand_total|floatformat:2 }}</div>
+              </div>
               </div>
                   
                   <button class="checkout">Checkout</button>
@@ -142,6 +142,10 @@
     margin-right: 5%;
   }
 
+  .product-quantity{
+    text-align: center;
+    margin-right: 5%;
+  }
   
   .product-quantity input {
     width: 40px;
@@ -187,7 +191,7 @@
   <!-- jQery -->
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
-  <script>
+  <script> 
     document.querySelectorAll(".quantity-input").forEach(function (input) {
       input.addEventListener("change", changeQuantity);
     });
@@ -196,8 +200,14 @@
       var input = event.target;
       var quantity = parseInt(input.value);
       var productId = input.dataset.productId;
+      var productPrice = parseFloat(input.dataset.unitPrice);
+      total = quantity * productPrice;
 
-  
+      
+      $('#specific_product_'+productId).text(total.toFixed(2));
+      updateSubtotal();
+      updateTaxAndGrandTotal();
+
           $.ajax({
               type: 'POST',
               url: '/order/update_cart/',  
@@ -215,6 +225,30 @@
           });
     
   }
+
+    function updateSubtotal(){
+      var subtotal = 0;
+      document.querySelectorAll(".product").forEach(function (product) {
+        var productQuantity = parseInt(product.querySelector(".quantity-input").value);
+        var productPrice = parseFloat(product.querySelector(".product-price").innerText);
+        subtotal += productQuantity * productPrice;
+    });
+
+   
+    $('#cart-subtotal').text(subtotal.toFixed(2));
+    }
+
+    function updateTaxAndGrandTotal() {
+      var subtotal = parseFloat($('#cart-subtotal').text());   
+      var taxRate = parseFloat($('.totals').data('tax-rate'));
+      var shippingCost = parseFloat($('.totals').data('shipping-cost'));
+
+        var tax = subtotal * taxRate;
+        var grandTotal = subtotal + tax + shippingCost;
+        $('#cart-tax').text(tax.toFixed(2));
+        $('#cart-total').text(grandTotal.toFixed(2));
+    } 
+
 </script>
   {% endblock %}
   

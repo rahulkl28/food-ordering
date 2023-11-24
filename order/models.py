@@ -28,7 +28,7 @@ class Product(models.Model):
     product_img = models.ImageField(null=False, blank=False)
     product_name = models.CharField(max_length=20,null=False,blank=True)
     product_desc = models.CharField(max_length=200,null=True,blank=True)
-    product_price = models.IntegerField(null=True,blank=True)
+    product_price = models.CharField(max_length=200, null=True,blank=True)
     category_name = models.ForeignKey(Categories, on_delete=models.CASCADE, default=True, null=False)
 
     
@@ -60,5 +60,5 @@ class CartItems(models.Model):
         return f"{self.quantity} x {self.product}"
 
     def get_total_price(self):
-        return self.quantity * self.product.product_price
+        return float(self.quantity) * float(self.product.product_price)
     

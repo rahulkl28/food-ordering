@@ -254,11 +254,12 @@ def delete_product(request, product_id):
 def cart(request):
     cart = Cart.objects.get(user=request.user)
     cart_items = CartItems.objects.filter(cart=cart)
-    total_price = sum(int(product.get_total_price()) for product in cart_items)
-    subtotal = sum(product.get_total_price() for product in cart_items)
+    total_price = sum(float(product.get_total_price()) for product in cart_items)
+    subtotal = sum(float(product.get_total_price()) for product in cart_items)
+
     tax_rate = 0.05 
     shipping_cost = 15.00 
-    tax = subtotal * tax_rate
+    tax = round(subtotal * tax_rate, 2)
     grand_total = subtotal + tax + shipping_cost
 
     return render(request, 'order/cart.html', { 'cart_items': cart_items,'cart_count': cart_items.count(), 'total_price': total_price, 'subtotal': subtotal, 'tax': tax, 'shipping_cost': shipping_cost, 'grand_total': grand_total})
