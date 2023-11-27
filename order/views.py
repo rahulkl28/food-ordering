@@ -5,7 +5,7 @@ from .models import Contact
 from django.contrib import messages
 from order.models import User
 from django.contrib.auth import authenticate, login, logout
-from .models import Categories, Product, Cart, CartItems
+from .models import Categories, Product, Cart, CartItems, Checkout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
 from django.db.models import Q
@@ -13,7 +13,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.urls import reverse
-
+from django.db import transaction
 
 def index(request):
     categories = Categories.objects.all()
@@ -252,7 +252,7 @@ def delete_product(request, product_id):
 
 
 def cart(request):
-    cart = Cart.objects.get(user=request.user)
+    cart, created = Cart.objects.get_or_create(user=request.user, is_paid=False)
     cart_items = CartItems.objects.filter(cart=cart)
     total_price = sum(float(product.get_total_price()) for product in cart_items)
     subtotal = sum(float(product.get_total_price()) for product in cart_items)
@@ -265,14 +265,15 @@ def cart(request):
     return render(request, 'order/cart.html', { 'cart_items': cart_items,'cart_count': cart_items.count(), 'total_price': total_price, 'subtotal': subtotal, 'tax': tax, 'shipping_cost': shipping_cost, 'grand_total': grand_total})
 
 
-
+@transaction.atomic
 def add_to_cart(request, product_id):
 
     product = get_object_or_404(Product, pk=product_id)
     user = User.objects.get(id=request.user.id)
 
     
-    carts = Cart.objects.filter(user=user, is_paid=False)
+    with transaction.atomic():
+        carts = Cart.objects.select_for_update().filter(user=user, is_paid=False)
 
     if carts.exists():
         cart = carts.first()
@@ -331,3 +332,47 @@ def update_cart(request):
         return JsonResponse({'status': 'success'})
 
     return JsonResponse({'status': 'error'})
+
+
+def checkout(request):
+    cart, created = Cart.objects.get_or_create(user=request.user, is_paid=False)
+    cart_items = CartItems.objects.filter(cart=cart)
+    subtotal = sum(float(item.get_total_price()) for item in cart_items)
+    tax_rate = 0.05
+    shipping_cost = 15.00
+    tax = round(subtotal * tax_rate, 2)
+    grand_total = subtotal + tax + shipping_cost
+
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        name = request.POST.get('name')
+        address = request.POST.get('address')
+        address_location = request.POST.get('address_location')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        zip_code = request.POST.get('zip')
+
+        # Create a Checkout instance
+        checkout = Checkout.objects.create(
+            user=request.user,
+            cart=cart,
+            email=email,
+            name=name,
+            address=address,
+            address_location=address_location,
+            city=city,
+            state=state,
+            zip=zip_code
+        )
+
+        cart.is_paid = True
+        cart.save()
+
+        
+        cart_items.delete()
+
+        messages.success(request, 'Order placed successfully!')
+        return redirect('order:index')  
+    else:
+        return render(request, 'order/checkout.html', {'cart_items': cart_items, 'subtotal': subtotal, 'tax': tax,
+            'shipping_cost': shipping_cost, 'grand_total': grand_total})

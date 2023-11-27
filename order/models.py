@@ -62,3 +62,14 @@ class CartItems(models.Model):
     def get_total_price(self):
         return float(self.quantity) * float(self.product.product_price)
     
+
+class Checkout(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="checkout")
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="cart")
+    email = models.EmailField(max_length=100, unique=True, null=False, blank=False)
+    name = models.CharField(max_length=200,null=False, blank=False)
+    address = models.TextField(max_length=300, null=False, blank=False)
+    address_location = models.TextField(max_length=300, null=True, blank=True)
+    city = models.CharField(max_length=100, null=False, blank=False)
+    state = models.CharField(max_length=100, null=False, blank=False)
+    zip = models.IntegerField(null=False, blank=False)
