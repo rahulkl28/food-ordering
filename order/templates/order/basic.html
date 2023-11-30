@@ -95,12 +95,12 @@
             </button>
             {% endif %}
             <div class="user_option active">
-              <a href="{% url 'order:profile' %}" class="user_link {% block profileactive %} {% endblock profileactive %}">
+              <a href="{% url 'order:profile' %}" class="user_link {% block profileactive %} active {% endblock profileactive %}">
                 <i class="fa fa-user " aria-hidden="true"></i><span class="sr-only">(current)</span>
             </a>
             
 
-            <a class="cart_link" href="{% url 'order:cart' %}" onclick="addToCart(productId)">
+              <a class="cart_link" href="{% url 'order:cart' %}" onclick="addToCart(productId)">
 
                 {% if user.is_authenticated %}
                 <span id="cart-counter" class="cart-counter">{{cart_count}}</span>
@@ -158,8 +158,9 @@
                   <g>
                   </g>
                 </svg>
-              </a>
-              <!-- Add this code where you want to display the search form -->
+             </a>
+           
+              <!-- search form -->
               <form class="form-inline d-flex ml-auto" method="GET" action="{% url 'order:search' %}">
                 {% csrf_token %}
                 <div class="input-group">

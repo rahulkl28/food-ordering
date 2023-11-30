@@ -74,9 +74,11 @@
                   <div class="totals-value" id="cart-total">{{ grand_total|floatformat:2 }}</div>
               </div>
               </div>
-              <a href = {%url 'order:checkout' %}>
-                  <button class="checkout">Checkout</button>
-              </a>
+              <a href="{% url 'order:checkout' %}">
+                <button class="checkout">
+                    Checkout
+                </button>
+            </a>
             
             </div>
     </div>

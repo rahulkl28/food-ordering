@@ -64,7 +64,8 @@
 
             <h1 class="my-2">Enter Address and other details </h1>
 
-            <form class="row g-3" method="POST">  {% csrf_token %}
+            <form id="checkoutForm" class="row g-3" method="POST">  
+              {% csrf_token %}
               <div class="col-md-6">
                 <label for="inputEmail4" class="form-label">Email</label>
                 <input type="email" name="email" class="form-control" id="inputEmail4">
@@ -83,7 +84,7 @@
               </div>
               <div class="col-md-6">
                 <label for="inputCity" class="form-label">City</label>
-                <input type="text" name="city" class="form-control" id="inputCity">
+                <input  type="text" name="city" class="form-control" id="inputCity">
               </div>
               <div class="col-md-4">
                 <label for="inputState" class="form-label">State</label>
@@ -91,7 +92,7 @@
               </div>
               <div class="col-md-2">
                 <label for="inputZip" class="form-label">Zip</label>
-                <input type="text" name="zip" class="form-control" id="inputZip">
+                <input type="text" name="zip_code" class="form-control" id="inputZip">
               </div>
               <div class="col-12">
                 <div class="form-check">
@@ -102,12 +103,57 @@
                 </div>
               </div>
               <div class="col-12">
-                <button type="submit" class="btn btn-primary mb-3">Place Order</button>
+                <button type="button" onclick="proceedToPayment()" class="btn btn-primary mb-3"data-toggle="modal" data-target="#paymentModal">
+                  Proceed to Payment</button>
               </div>
             </form>
           </div>
   </div>
+ <!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel" aria-hidden="true">
+  <div class="modal-dialog  modal-dialog-centered" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="paymentModalLabel">Payment Details</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+              <!-- Payment fields go here -->
+              <form method="POST" action="{% url 'order:checkout' %}">  {% csrf_token %}
+                  <div class="form-group">
+                      <label for="cardNumber">Card Number</label>
+                      <input type="text" class="form-control" id="cardNumber" placeholder="Enter card number">
+                  </div>
+                  <div class="form-group">
+                      <label for="expiryDate">Expiry Date</label>
+                      <input type="text" class="form-control" id="expiryDate" placeholder="MM/YYYY">
+                  </div>
+                  <div class="form-group">
+                      <label for="cvv">CVV</label>
+                      <input type="text" class="form-control" id="cvv" placeholder="Enter CVV">
+                  </div>
 
+                  <!-- Payment method selection -->
+                  <div class="form-group">
+                    <label>Select Payment Method:</label>
+                    <div class="custom-control custom-radio">
+                        <input type="radio" id="creditCard" name="payment_method" value="credit_card" class="custom-control-input">
+                        <label class="custom-control-label" for="creditCard">Credit Card</label>
+                    </div>
+                    <div class="custom-control custom-radio">
+                        <input type="radio" id="debitCard" name="payment_method" value="debit_card" class="custom-control-input">
+                        <label class="custom-control-label" for="debitCard">Debit Card</label>
+                    </div>
+                </div>
+
+                  <button type="submit" class="btn btn-primary">Proceed to Pay</button>
+              </form>
+          </div>
+      </div>
+  </div>
+</div>
 
 
   
@@ -253,7 +299,39 @@
         $('#cart-tax').text(tax.toFixed(2));
         $('#cart-total').text(grandTotal.toFixed(2));
     } 
+    
+    function proceedToPayment() {
+   
+      
+      var formData = {
+        email: document.getElementById('inputEmail4').value,
+        name: document.getElementById('inputName').value,
+        address: document.getElementById('inputAddress').value,
+        address_location: document.getElementById('inputAddress2').value,
+        city: document.getElementById('inputCity').value,
+        state: document.getElementById('inputState').value,
+        zip_code: document.getElementById('inputZip').value,
+        payment_method: document.querySelector('input[name="payment_method"]:checked') ? document.querySelector('input[name="payment_method"]:checked').value : null
+      };
+  
 
+      $.ajax({
+        type: 'POST',
+        url: '{% url "order:checkout" %}',
+        data: formData,
+        dataType: 'json',  
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        success: function (data) {
+          console.log('Data sent successfully:', data);
+          window.location.href = '{% url "order:index" %}';
+        },
+        error: function (error) {
+          console.error('Error sending data:', error);
+        }
+      });
+    }
 </script>
   {% endblock %}
     

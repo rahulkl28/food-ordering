@@ -66,10 +66,15 @@ class CartItems(models.Model):
 class Checkout(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="checkout")
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="cart")
-    email = models.EmailField(max_length=100, unique=True, null=False, blank=False)
-    name = models.CharField(max_length=200,null=False, blank=False)
-    address = models.TextField(max_length=300, null=False, blank=False)
+    email = models.EmailField(max_length=300, null=True, blank=True)
+    name = models.CharField(max_length=200, null=True, blank=True)
+    address = models.TextField(max_length=300, null=True, blank=True)
     address_location = models.TextField(max_length=300, null=True, blank=True)
-    city = models.CharField(max_length=100, null=False, blank=False)
-    state = models.CharField(max_length=100, null=False, blank=False)
-    zip = models.IntegerField(null=False, blank=False)
+    city = models.CharField(max_length=100, null=True, blank=True)
+    state = models.CharField(max_length=100, null=True, blank=True)
+    zip_code = models.IntegerField(null=True, blank=True)
+
+
+class PaymentMethod(models.Model):
+    checkout = models.OneToOneField(Checkout,  on_delete=models.CASCADE, related_name="checkout")
+    payment_method = models.CharField(max_length=50, choices=[('credit_card', 'Credit Card'), ('debit_card', 'Debit Card')], default='credit_card')

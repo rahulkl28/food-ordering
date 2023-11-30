@@ -5,7 +5,7 @@ from .models import Contact
 from django.contrib import messages
 from order.models import User
 from django.contrib.auth import authenticate, login, logout
-from .models import Categories, Product, Cart, CartItems, Checkout
+from .models import Categories, Product, Cart, CartItems, Checkout, PaymentMethod
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
 from django.db.models import Q
@@ -337,6 +337,11 @@ def update_cart(request):
 def checkout(request):
     cart, created = Cart.objects.get_or_create(user=request.user, is_paid=False)
     cart_items = CartItems.objects.filter(cart=cart)
+    
+    if not cart_items:
+        messages.error(request, 'Your shopping cart is empty.')
+        return redirect('order:cart')
+
     subtotal = sum(float(item.get_total_price()) for item in cart_items)
     tax_rate = 0.05
     shipping_cost = 15.00
@@ -351,7 +356,7 @@ def checkout(request):
         city = request.POST.get('city')
         state = request.POST.get('state')
         zip_code = request.POST.get('zip')
-
+        payment_method = request.POST.get('payment_method')
         # Create a Checkout instance
         checkout = Checkout.objects.create(
             user=request.user,
@@ -362,8 +367,12 @@ def checkout(request):
             address_location=address_location,
             city=city,
             state=state,
-            zip=zip_code
+            zip_code=zip_code,
+           
         )
+
+        if payment_method:
+            PaymentMethod.objects.create( checkout=checkout, payment_method=payment_method)
 
         cart.is_paid = True
         cart.save()
