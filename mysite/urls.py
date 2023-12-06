@@ -23,8 +23,9 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-     path('order/', include('order.urls', namespace='order')),
-     path('', views.index, name='index'),
+    path('api-auth/', include('rest_framework.urls')),
+    path('order/', include('order.urls', namespace='order')),
+    path('', views.index, name='index'),
 
 
 ]

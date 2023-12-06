@@ -3,8 +3,10 @@ from autoslug import AutoSlugField
 # from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
-# from django.db.models.signals import post_save
-# from django.dispatch import receiver
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.core.mail import send_mail
+from django.conf import settings
 
 
 class Contact(models.Model):
@@ -38,12 +40,19 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=250, null=True, blank=True)
     username = models.CharField(max_length=100, unique=True, null=True, blank=False)
     email = models.EmailField(max_length=100, unique=True, null=False, blank=False)
-    pass_word = models.CharField(max_length=100, null= True,blank=False)
 
     class Meta:
         managed = True
         db_table = "tbl_user"
    
+@receiver(post_save, sender=User)
+def send_welcome_email(sender, instance, created, **kwargs):
+    if created:
+        subject = 'Welcome to Food Ordering App'
+        message = 'Thank you for signing up!'
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to_email = instance.email
+        send_mail(subject, message, from_email, [to_email])
 
 
 class Cart(models.Model):

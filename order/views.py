@@ -35,15 +35,24 @@ def category_products(request, slug):
 def menu(request):
     categories = Categories.objects.all()
     products = Product.objects.all()
-    cart = Cart.objects.filter(user=request.user).values_list("id",flat=True)
-    cart_items = CartItems.objects.filter(cart_id__in =cart )
-    return render(request, 'order/menu.html', {'categories': categories, 'products': products, "cart_count":cart_items.count()})
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(user=request.user).values_list("id",flat=True)
+        cart_items = CartItems.objects.filter(cart_id__in =cart )
+        return render(request, 'order/menu.html', {'categories': categories, 'products': products, "cart_count":cart_items.count()})
+    else:
+        return render(request, 'order/menu.html', {'categories': categories, 'products': products})
+
 
 
 def about(request):
-    cart = Cart.objects.filter(user=request.user).values_list("id",flat=True)
-    cart_items = CartItems.objects.filter(cart_id__in =cart )
-    return render(request, 'order/about.html' , {"cart_count":cart_items.count()})
+
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(user=request.user).values_list("id",flat=True)
+        cart_items = CartItems.objects.filter(cart_id__in =cart )
+        return render(request, 'order/about.html' , {"cart_count":cart_items.count()})
+    
+    else:
+        return render(request, 'order/about.html')
 
 
 @login_required
@@ -96,40 +105,77 @@ def update_data(request):
         return redirect("order:profile")
 
 def book(request):
-    cart = Cart.objects.filter(user=request.user).values_list("id",flat=True)
-    cart_items = CartItems.objects.filter(cart_id__in =cart )
-    if request.method == 'GET':
-        return render(request, 'order/book.html', {"cart_count":cart_items.count()})  
 
-    if request.method == 'POST':
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(user=request.user).values_list("id",flat=True)
+        cart_items = CartItems.objects.filter(cart_id__in =cart )
+        if request.method == 'GET':
+            return render(request, 'order/book.html', {"cart_count":cart_items.count()})  
 
-        if not request.POST.get("f_name"):
-            messages.error(request, "Please enter you name")
-            return redirect('order:book')
-        
-        if not request.POST.get("email"):
-            messages.error(request, "Please enter you email")
-            return redirect('order:book')
-        
-        if not request.POST.get("number"):
-            messages.error(request, "Please enter you phone number")
-            return redirect('order:book')
-        
-        if not request.POST.get("person"):
-            messages.error(request, "Please enter the number of persons")
-            return redirect('order:book')
+        if request.method == 'POST':
+
+            if not request.POST.get("f_name"):
+                messages.error(request, "Please enter you name")
+                return redirect('order:book')
+            
+            if not request.POST.get("email"):
+                messages.error(request, "Please enter you email")
+                return redirect('order:book')
+            
+            if not request.POST.get("number"):
+                messages.error(request, "Please enter you phone number")
+                return redirect('order:book')
+            
+            if not request.POST.get("person"):
+                messages.error(request, "Please enter the number of persons")
+                return redirect('order:book')
 
 
-        contact = Contact.objects.create(
-            your_name = request.POST.get("f_name"),
-            phone_number = request.POST.get("number"),
-            your_email = request.POST.get("email"),
-            persons_number = request.POST.get("person"),
-            your_message = request.POST.get("message")
-        )
+            contact = Contact.objects.create(
+                your_name = request.POST.get("f_name"),
+                phone_number = request.POST.get("number"),
+                your_email = request.POST.get("email"),
+                persons_number = request.POST.get("person"),
+                your_message = request.POST.get("message")
+            )
 
-        messages.success(request, "Your Booking is confirmed")
-        return redirect('order:index')
+            messages.success(request, "Your Booking is confirmed")
+            return redirect('order:index')
+    
+    else:
+        if request.method == 'GET':
+            return render(request, 'order/book.html')  
+
+        if request.method == 'POST':
+
+            if not request.POST.get("f_name"):
+                messages.error(request, "Please enter you name")
+                return redirect('order:book')
+            
+            if not request.POST.get("email"):
+                messages.error(request, "Please enter you email")
+                return redirect('order:book')
+            
+            if not request.POST.get("number"):
+                messages.error(request, "Please enter you phone number")
+                return redirect('order:book')
+            
+            if not request.POST.get("person"):
+                messages.error(request, "Please enter the number of persons")
+                return redirect('order:book')
+
+
+            contact = Contact.objects.create(
+                your_name = request.POST.get("f_name"),
+                phone_number = request.POST.get("number"),
+                your_email = request.POST.get("email"),
+                persons_number = request.POST.get("person"),
+                your_message = request.POST.get("message")
+            )
+
+            messages.success(request, "Your Booking is confirmed")
+            return redirect('order:index')
+
 
 
 def resetter(request):
@@ -158,6 +204,7 @@ def resetter(request):
 
     if request.method == 'GET':
      return render(request, 'order/resetter.html', {"cart_count":cart_items.count()})
+
 
 def signup(request):
     if request.method == 'POST':
@@ -203,6 +250,7 @@ def handlelogin(request):
 
     return HttpResponse("404- Not found")
 
+
 def handlelogout(request):
     logout(request)
     messages.success(request, "Successfully Logged Out")
@@ -211,19 +259,33 @@ def handlelogout(request):
 
 def searchmenu(request):
     query = request.GET.get('query', '')
-    cart = Cart.objects.filter(user=request.user).values_list("id",flat=True)
-    cart_items = CartItems.objects.filter(cart_id__in =cart )
-    if query:
-        products = Product.objects.filter(Q(product_name__icontains=query) | Q(product_price=query))
 
-        if products.exists():
-            return render(request, 'order/searchmenu.html', {'products': products, 'query': query, "cart_count":cart_items.count()})
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(user=request.user).values_list("id",flat=True)
+        cart_items = CartItems.objects.filter(cart_id__in =cart )
+        if query:
+            products = Product.objects.filter(Q(product_name__icontains=query) | Q(product_price=query))
+
+            if products.exists():
+                return render(request, 'order/searchmenu.html', {'products': products, 'query': query, "cart_count":cart_items.count()})
+            else:
+                messages.error(request, "OOPS! No item is found")
+                return render(request, 'order/index.html', {'query': query, "cart_count":cart_items.count()})
         else:
-            messages.error(request, "OOPS! No item is found")
-            return render(request, 'order/index.html', {'query': query, "cart_count":cart_items.count()})
+            return redirect('/order/menu')
+        
     else:
-        return redirect('/order/menu')
+        if query:
+            products = Product.objects.filter(Q(product_name__icontains=query) | Q(product_price=query))
 
+            if products.exists():
+                return render(request, 'order/searchmenu.html', {'products': products, 'query': query})
+            else:
+                messages.error(request, "OOPS! No item is found")
+                return render(request, 'order/index.html', {'query': query})
+        else:
+            return redirect('/order/menu')
+        
 def productdetails(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
     cart = Cart.objects.filter(user=request.user).values_list("id",flat=True)
@@ -252,17 +314,22 @@ def delete_product(request, product_id):
 
 
 def cart(request):
-    cart, created = Cart.objects.get_or_create(user=request.user, is_paid=False)
-    cart_items = CartItems.objects.filter(cart=cart)
-    total_price = sum(float(product.get_total_price()) for product in cart_items)
-    subtotal = sum(float(product.get_total_price()) for product in cart_items)
 
-    tax_rate = 0.05 
-    shipping_cost = 15.00 
-    tax = round(subtotal * tax_rate, 2)
-    grand_total = subtotal + tax + shipping_cost
+    if request.user.is_authenticated:
+        cart, created = Cart.objects.get_or_create(user=request.user, is_paid=False)
+        cart_items = CartItems.objects.filter(cart=cart)
+        total_price = sum(float(product.get_total_price()) for product in cart_items)
+        subtotal = sum(float(product.get_total_price()) for product in cart_items)
 
-    return render(request, 'order/cart.html', { 'cart_items': cart_items,'cart_count': cart_items.count(), 'total_price': total_price, 'subtotal': subtotal, 'tax': tax, 'shipping_cost': shipping_cost, 'grand_total': grand_total})
+        tax_rate = 0.05 
+        shipping_cost = 15.00 
+        tax = round(subtotal * tax_rate, 2)
+        grand_total = subtotal + tax + shipping_cost
+
+        return render(request, 'order/cart.html', { 'cart_items': cart_items,'cart_count': cart_items.count(), 'total_price': total_price, 'subtotal': subtotal, 'tax': tax, 'shipping_cost': shipping_cost, 'grand_total': grand_total})
+    else:
+        messages.success(request, "Please login to add items in cart")
+        return redirect('/order')
 
 
 @transaction.atomic
@@ -384,4 +451,4 @@ def checkout(request):
         return redirect('order:index')  
     else:
         return render(request, 'order/checkout.html', {'cart_items': cart_items, 'subtotal': subtotal, 'tax': tax,
-            'shipping_cost': shipping_cost, 'grand_total': grand_total})
+            'shipping_cost': shipping_cost, 'grand_total': grand_total, 'cart_count': cart_items.count()})
